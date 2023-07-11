@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="pch">
+      <UniqueIdentifier>{cf233a5a-7e28-4934-b2f0-13b09247ea01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{7c3c620c-17fe-47e3-bd0c-0fb3097ef8a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="detector">
+      <UniqueIdentifier>{314d741c-0c65-47d9-aa3f-167538146f13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility\functions">
+      <UniqueIdentifier>{031c23b7-13b5-46fe-82bb-9ca59e7db01c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch\stdafx.cpp">
+      <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\detector\CarDetector.cpp">
+      <Filter>detector</Filter>
+    </ClCompile>
+    <ClCompile Include="src\detector\DetectedCar.cpp">
+      <Filter>detector</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\GuiHandler.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\ResourceProvider.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\functions\GeoConverter.cpp">
+      <Filter>utility\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\functions\ImgProcs.cpp">
+      <Filter>utility\functions</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch\stdafx.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CarDetector.h" />
+    <ClInclude Include="src\Utility.h" />
+    <ClInclude Include="src\utility\Functions.h">
+      <Filter>utility</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
