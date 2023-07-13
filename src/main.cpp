@@ -1,27 +1,29 @@
 #include "Utility.h"
 #include "CarDetector.h"
 
-#undef SHOW_ORTHO
+//#define DISPLAY_SPEED
 
-constexpr auto g_video_code = "hiru";
-//constexpr auto g_video_code = "yugata";
+constexpr auto g_VIDEO_CODE = "hiru";
+//constexpr auto g_VIDEO_CODE = "yugata";
 
-constexpr auto g_ortho_code = "ortho";
-constexpr auto g_road_num = 4;
-constexpr auto g_proc_imgsz = 50;
+constexpr auto g_ORTHO_CODE = "ortho";
+constexpr auto g_ROAD_NUM = 4;
+constexpr auto g_PROC_IMGSZ = 50;
 
 int main()
 {
 	GuiHandler::Initialize();
-	ResourceProvider::Init(g_road_num, g_video_code, g_ortho_code);
-	CarDetector carDetector(L"", cv::Size(g_proc_imgsz, g_proc_imgsz));
+	ResourceProvider::Init(g_ROAD_NUM, g_VIDEO_CODE, g_ORTHO_CODE);
+	CarDetector carDetector(L"", cv::Size(g_PROC_IMGSZ, g_PROC_IMGSZ));
 
-	GuiHandler::SetVideoResource(std::format("resources/{}/input.mp4", g_video_code));
+	GuiHandler::SetVideoResource(std::format("resources/{}/input.mp4", g_VIDEO_CODE));
 	GuiHandler::SetRenderer(carDetector.CreateRenderer());
 
 	while (GuiHandler::EventPoll())
 	{
+#ifdef DISPLAY_SPEED
 		const auto start = std::chrono::high_resolution_clock::now();
+#endif
 		if (GuiHandler::IsRunning())
 		{
 			const cv::Mat frame = GuiHandler::GetFrame();
@@ -36,8 +38,10 @@ int main()
 
 		GuiHandler::Render();
 
+#ifdef DISPLAY_SPEED
 		const auto end = std::chrono::high_resolution_clock::now();
-		//std::cout << std::format("elapsed: {}\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+		std::cout << std::format("elapsed: {} [ms]\n", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
+#endif
 	}
 	cv::destroyAllWindows();
 	std::cout << "end....." << std::endl;

@@ -13,10 +13,19 @@ static constexpr auto g_CSV_HEADER = "frame, distance";
 static constexpr auto g_FPS = 30.0;
 static const auto g_FOURCC = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
 static const auto g_VIDEO_SIZE = cv::Size(1920, 1080);
+static const auto g_ORTHO_VIDEO_SIZE = cv::Size(2119, 2577);
 static constexpr auto g_VIDEO_BASE_PATH = "outputs/trackings";
+
+enum class VideoIdx : uint32_t
+{
+	VIDEO = 0,
+	ORTHO,
+};
 
 CarDetector::CarDetector(const std::wstring& model_path, const cv::Size& proc_imgsz)
 {
+	for (auto& video_writer : m_videoWriters)
+		video_writer = cv::VideoWriter();
 }
 
 void CarDetector::Run(const cv::Mat& _img)
@@ -47,14 +56,21 @@ void CarDetector::Run(const cv::Mat& _img)
 
 		if (!g_dist_output_flag)
 		{
-			m_videoWriter.open(std::format("{}/output_{}_{}.mp4",
-				g_VIDEO_BASE_PATH, car_id_list[0], car_id_list[1]),
-				g_FOURCC, g_FPS, g_VIDEO_SIZE);
+			g_distance_estimate_frame_count = 0;
+			g_dist_output_flag = true;
+			m_videoWriters[std::underlying_type_t<VideoIdx>(VideoIdx::VIDEO)]
+				.open(std::format("{}/output_{}_{}.mp4",
+					g_VIDEO_BASE_PATH, car_id_list[0], car_id_list[1]),
+					g_FOURCC, g_FPS, g_VIDEO_SIZE);
+#ifdef SHOW_ORTHO
+			m_videoWriters[std::underlying_type_t<VideoIdx>(VideoIdx::ORTHO)]
+				.open(std::format("{}/output_{}_{}_ortho.mp4",
+					g_VIDEO_BASE_PATH, car_id_list[0], car_id_list[1]),
+					g_FOURCC, g_FPS, g_ORTHO_VIDEO_SIZE);
+#endif
 			m_outputCsvStream.open(std::format("{}/output_{}_{}.csv",
 				g_OUTPUT_CSV_PATH, car_id_list[0], car_id_list[1]));
 			m_outputCsvStream << g_CSV_HEADER << std::endl;
-			g_dist_output_flag = true;
-			g_distance_estimate_frame_count = 0;
 		}
 
 		if (GuiHandler::GetFrameCount() % g_ESTIMATED_FRAME_SPAN == 0)
@@ -69,8 +85,14 @@ void CarDetector::Run(const cv::Mat& _img)
 	{
 		m_carDistMeter = 0.0;
 		g_dist_output_flag = false;
-		if (m_videoWriter.isOpened())
-			m_videoWriter.release();
+		auto& video_writer = m_videoWriters[std::underlying_type_t<VideoIdx>(VideoIdx::VIDEO)];
+		if (video_writer.isOpened())
+			video_writer.release();
+#ifdef SHOW_ORTHO
+		auto& video_writer_ortho = m_videoWriters[std::underlying_type_t<VideoIdx>(VideoIdx::ORTHO)];
+		if (video_writer_ortho.isOpened())
+			video_writer_ortho.release();
+#endif
 		if (m_outputCsvStream.is_open())
 			m_outputCsvStream.close();
 	}
@@ -109,10 +131,9 @@ void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 #endif
 		car_id++;
 	}
-#ifdef SHOW_ORTHO
-	cv::resize(ortho, ortho, cv::Size(), 0.5, 0.5);
-	cv::imshow("ortho", ortho);
-#endif
+
+	if (!GuiHandler::IsRunning())
+		return;
 
 	if (g_dist_output_flag)
 	{
@@ -125,10 +146,17 @@ void CarDetector::ThisRenderer::DrawDetections(cv::Mat& img)
 			g_FONT_FACE, g_FONT_SCALE, cv::Scalar(0, 0, 255), g_THICKNESS);
 	}
 
-	auto& video_writer = m_ptrDetector->m_videoWriter;
-	if (video_writer.isOpened() && GuiHandler::IsRunning()
-		&& (GuiHandler::GetFrameCount() % g_ESTIMATED_FRAME_SPAN == 0))
+	auto& video_writers = m_ptrDetector->m_videoWriters;
+	auto& video_writer = video_writers[std::underlying_type_t<VideoIdx>(VideoIdx::VIDEO)];
+	if (video_writer.isOpened())
 		video_writer.write(img);
+#ifdef SHOW_ORTHO
+	auto& video_writer_ortho = video_writers[std::underlying_type_t<VideoIdx>(VideoIdx::ORTHO)];
+	if (video_writer_ortho.isOpened())
+		video_writer_ortho.write(ortho);
+	cv::resize(ortho, ortho, cv::Size(), 0.5, 0.5);
+	cv::imshow("ortho", ortho);
+#endif
 }
 
 void CarDetector::SetDetectedCar(const cv::Rect& rect)

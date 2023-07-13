@@ -68,7 +68,7 @@ private:
 	};
 
 	std::array<DetectedCar, 2> m_detectedCars;
-	cv::VideoWriter m_videoWriter;
+	std::array<cv::VideoWriter, 2> m_videoWriters;
 	std::ofstream m_outputCsvStream;
 	int64_t m_newCarId = 0;
 	uint64_t m_emptyCarId = 0;

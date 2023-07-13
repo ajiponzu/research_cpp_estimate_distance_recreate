@@ -1,8 +1,8 @@
 #include "../Functions.h"
 using namespace Func;
 
-static constexpr int g_block_wid = 100;
-static constexpr int g_block_high = 100;
+static constexpr int g_BLOCK_WID = 100;
+static constexpr int g_BLOCK_HIGH = 100;
 
 // get white-lane areas
 // color-image-segmentation by k-means
@@ -202,11 +202,11 @@ cv::Mat Img::binarize_block_img(cv::Mat& src, const int& output_channels)
 	else
 		dst = src.clone();
 
-	for (int y = 0; y < dst.rows; y += g_block_high)
+	for (int y = 0; y < dst.rows; y += g_BLOCK_HIGH)
 	{
-		for (int x = 0; x < dst.cols; x += g_block_wid)
+		for (int x = 0; x < dst.cols; x += g_BLOCK_WID)
 		{
-			auto block = cv::Rect(x, y, std::min(g_block_wid, dst.cols - x), std::min(g_block_high, dst.rows - y));
+			auto block = cv::Rect(x, y, std::min(g_BLOCK_WID, dst.cols - x), std::min(g_BLOCK_HIGH, dst.rows - y));
 			cv::Mat blockImg = dst(block);
 			cv::threshold(blockImg, blockImg, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
 		}

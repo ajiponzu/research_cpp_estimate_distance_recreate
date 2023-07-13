@@ -20,18 +20,18 @@ std::unordered_set<int>  GuiHandler::s_keyEventTable{};
 /* end */
 
 /* global変数 */
-static constexpr auto g_wnd_name = "display";
-static constexpr auto g_frame_interval = 1;
-static constexpr auto g_base_path = "outputs/screenshots";
+static constexpr auto g_WND_NAME = "display";
+static constexpr auto g_FRAME_INTERVAl = 1;
+static constexpr auto g_BASE_PATH = "outputs/screenshots";
 static bool g_mouse_move_l = false;
 static cv::Point g_move_point;
 /* end */
 
 void GuiHandler::ScreenShot()
 {
-	std::string path = std::format("{}/result_{}.png", g_base_path, s_frameCount);
+	std::string path = std::format("{}/result_{}.png", g_BASE_PATH, s_frameCount);
 	cv::imwrite(path, s_displayImg);
-	path = std::format("{}/frame_{}.png", g_base_path, s_frameCount);
+	path = std::format("{}/frame_{}.png", g_BASE_PATH, s_frameCount);
 	cv::imwrite(path, s_currentFrame);
 }
 
@@ -92,14 +92,14 @@ void GuiHandler::Initialize()
 {
 	// FreeConsole(); // 本番環境でのコンソール非表示関数
 
-	cv::namedWindow(g_wnd_name, cv::WindowFlags::WINDOW_FULLSCREEN);
-	cv::setMouseCallback(g_wnd_name, RecvMouseMsg);
+	cv::namedWindow(g_WND_NAME, cv::WindowFlags::WINDOW_FULLSCREEN);
+	cv::setMouseCallback(g_WND_NAME, RecvMouseMsg);
 }
 
 bool GuiHandler::EventPoll()
 {
 	ClearEventFlags();
-	HandleInputKey(cv::waitKey(g_frame_interval));
+	HandleInputKey(cv::waitKey(g_FRAME_INTERVAl));
 
 	if (s_useVideo && s_isRunning) // ビデオ使用時かつ再生中
 	{
@@ -134,7 +134,7 @@ void GuiHandler::Render()
 		cv::rectangle(s_displayImg, cv::Rect(tx, ty, bx - tx, by - ty), cv::Scalar(0, 0, 255), 2);
 	}
 
-	cv::imshow(g_wnd_name, s_displayImg);
+	cv::imshow(g_WND_NAME, s_displayImg);
 }
 
 void GuiHandler::SetVideoResource(const std::string& path)
