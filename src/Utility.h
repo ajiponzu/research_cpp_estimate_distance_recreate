@@ -94,7 +94,7 @@ public:
 	// ドラッグで作成した矩形を取得する
 	static cv::Rect GetDragRect();
 	// 指定したキーのイベントを取得する
-	static bool GetKeyEvent(const int& keyCode) { return s_keyEventTable.find(keyCode) != s_keyEventTable.end(); }
+	static bool GetKeyEvent(const int& keyCode) { return s_keyEventTable.contains(keyCode); }
 
 	GuiHandler() = delete;
 	bool operator==(const GuiHandler& other) const = delete;

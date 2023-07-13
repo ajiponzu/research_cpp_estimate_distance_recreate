@@ -102,7 +102,7 @@ void DetectedCar::UpdatePosition(const cv::Point& car_pos)
 
 	// (白線方向 / [m / pix]) * 車体の全長[m] = 車体の他面位置[pix^2]
 	m_bodyDirection = get_white_lane_dir(car_pos);
-	const auto car_body_direction_pixel = g_CAR_BODY_ESTIMATED_METER * m_bodyDirection / g_ORTHO_METER; 
+	const auto car_body_direction_pixel = g_CAR_BODY_ESTIMATED_METER * m_bodyDirection / g_ORTHO_METER;
 	const auto another_point = static_cast<cv::Point>(extract_xy_point(m_curPointTransed) - car_body_direction_pixel);
 	m_curPointTransedAnother = convert_xy_into_xyz(another_point, get_dsm_z(another_point));
 }
@@ -158,6 +158,11 @@ void DetectedCar::DrawOnImage(cv::Mat& img) const
 	cv::putText(img, speed_txt,
 		cv::Point(m_shape.tl().x, m_shape.tl().y - 5),
 		g_FONT_FACE, g_FONT_SCALE, cv::Scalar(255, 255, 255), g_THICKNESS);
+
+#ifdef _DEBUG
+	if (GuiHandler::IsRunning())
+		std::cout << std::format("car_{}_speed: {:.1f} [km/h]", m_id, m_speed) << std::endl;
+#endif
 }
 
 void DetectedCar::DrawOnOrtho(cv::Mat& ortho) const

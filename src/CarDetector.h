@@ -57,10 +57,19 @@ private:
 	{
 	private:
 		std::shared_ptr<CarDetector> m_ptrDetector;
+		cv::VideoWriter m_videoWriter;
+		cv::VideoWriter m_orthoVideoWriter;
+		std::ofstream m_outputCsvStream;
 
 		void Render(cv::Mat& img) override;
 
-		void DrawDetections(cv::Mat& img);
+		void CloseOutputStream();
+#ifdef SHOW_ORTHO
+		void OutputData(const cv::Mat& img, const cv::Mat& ortho);
+#else
+		void OutputData(const cv::Mat& img);
+#endif
+		void OutputDetections(cv::Mat& img);
 	public:
 		ThisRenderer() = delete;
 		ThisRenderer(CarDetector* ptr) : m_ptrDetector(ptr) {}
@@ -68,15 +77,16 @@ private:
 	};
 
 	std::array<DetectedCar, 2> m_detectedCars;
-	std::array<cv::VideoWriter, 2> m_videoWriters;
-	std::ofstream m_outputCsvStream;
 	int64_t m_newCarId = 0;
 	uint64_t m_emptyCarId = 0;
 	double m_carDistMeter = 0.0;
+	bool m_distOutputFlag = false;
+	uint64_t m_distEstimatedFrameCount = 0;
+	std::array<int64_t, 2> m_trackingCarIdList{ -1, -1 };
 
 public:
 	CarDetector() = delete;
-	CarDetector(const std::wstring& model_path = L"", const cv::Size& proc_imgsz = cv::Size(640, 640));
+	CarDetector(const std::wstring& model_path = L"", const cv::Size& proc_imgsz = cv::Size(640, 640)) {}
 
 	ThisRenderer* CreateRenderer() { return new ThisRenderer(this); }
 
