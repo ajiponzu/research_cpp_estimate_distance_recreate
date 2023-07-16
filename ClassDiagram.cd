@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="DetectedCar">
+    <Position X="21.75" Y="2.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAFAAAgACgJUAAIASAAAAEIFgQAAAFCJAJgQAA=</HashCode>
+      <FileName>src\CarDetector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CarDetector">
+    <Position X="18" Y="2.75" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="CarDetector::ThisRenderer">
+        <InheritanceLine Type="Renderer" ManuallyRouted="true">
+          <Path>
+            <Point X="16.5" Y="5.988" />
+            <Point X="16.5" Y="7.318" />
+            <Point X="18.518" Y="7.318" />
+            <Point X="18.518" Y="6.468" />
+            <Point X="19.675" Y="6.468" />
+          </Path>
+          <InheritanceModifierLabel ManuallyPlaced="true">
+            <Position X="1.264" Y="-0.951" />
+          </InheritanceModifierLabel>
+        </InheritanceLine>
+        <TypeIdentifier>
+          <NewMemberFileName>src\CarDetector.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAwIAGABAAQgAAAGAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>src\CarDetector.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ResourceProvider">
+    <Position X="7.5" Y="3.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAABAwAEEQgAAAAAAQCAAACAEAAACgECAAAAAAE=</HashCode>
+      <FileName>src\Utility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Renderer">
+    <Position X="15.5" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAABCAAAAAAAA=</HashCode>
+      <FileName>src\Utility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GuiHandler">
+    <Position X="11.75" Y="2" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAIAEIAACAITAQCAhAAARUYggADCFAAZABAEAAAEIAA=</HashCode>
+      <FileName>src\Utility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
