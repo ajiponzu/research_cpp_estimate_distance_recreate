@@ -94,6 +94,7 @@ void GuiHandler::Initialize()
 
 	cv::namedWindow(g_WND_NAME, cv::WindowFlags::WINDOW_FULLSCREEN);
 	cv::setMouseCallback(g_WND_NAME, RecvMouseMsg);
+	cv::moveWindow(g_WND_NAME, 0, 0);
 }
 
 bool GuiHandler::EventPoll()
@@ -129,8 +130,8 @@ void GuiHandler::Render()
 
 	if (g_mouse_move_l)
 	{
-		const auto [tx, ty] = s_clickPoint;
-		const auto [bx, by] = s_dragPoint;
+		const auto& [tx, ty] = s_clickPoint;
+		const auto& [bx, by] = s_dragPoint;
 		cv::rectangle(s_displayImg, cv::Rect(tx, ty, bx - tx, by - ty), cv::Scalar(0, 0, 255), 2);
 	}
 
