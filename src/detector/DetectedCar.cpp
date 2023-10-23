@@ -2,10 +2,10 @@
 
 static constexpr auto g_KILO_RATIO = 0.001;
 static constexpr auto g_FONT_FACE = cv::FONT_HERSHEY_DUPLEX;
-static constexpr auto g_FONT_SCALE = 0.5;
-static constexpr auto g_THICKNESS = 1;
+static constexpr auto g_FONT_SCALE = 0.6;
+static constexpr auto g_THICKNESS = 2;
 static constexpr auto g_ORTHO_METER = 0.2;
-static constexpr auto g_CAR_BODY_ESTIMATED_METER = 4.2;
+static constexpr auto g_CAR_BODY_ESTIMATED_METER = 4.05;
 static constexpr auto g_HOUR_SECOND_RATIO = 3600;
 static constexpr auto g_MATCHING_THR = 0.1;
 
@@ -61,7 +61,7 @@ static double calc_car_distance(const cv::Point3f& pt1, const cv::Point3f& pt2)
 void DetectedCar::Init()
 {
 	const auto car_center = calc_rect_bottom_center(m_shape);
-	m_curPointTransed = m_startPointTransed = get_transed_point(car_center);
+	m_curPointTransed = get_transed_point(car_center);
 	m_startFrameCount = m_curFrameCount = GuiHandler::GetFrameCount();
 	m_img = GuiHandler::GetFrame()(m_shape);
 	m_initialized = true;
@@ -146,7 +146,7 @@ bool DetectedCar::Tracking(const cv::Mat& frame)
 void DetectedCar::DrawOnImage(cv::Mat& img) const
 {
 	int base_line = 0;
-	const auto speed_txt = std::format("{:.1f} [km/h]", m_speed);
+	const auto speed_txt = std::format("[ID {}] {:.1f} [km/h]", m_id, m_speed);
 	const auto font_size = cv::getTextSize(speed_txt,
 		g_FONT_FACE, g_FONT_SCALE, g_THICKNESS, &base_line);
 
@@ -167,12 +167,10 @@ void DetectedCar::DrawOnImage(cv::Mat& img) const
 
 void DetectedCar::DrawOnOrtho(cv::Mat& ortho) const
 {
-	cv::circle(ortho, static_cast<cv::Point>(extract_xy_point(m_startPointTransed)), 5,
-		cv::Scalar((m_id % 2 + 1) * 50.0, 255, (m_id % 2 + 1) * 50.0), -1);
 	cv::circle(ortho, static_cast<cv::Point>(extract_xy_point(m_curPointTransed)), 5,
-		cv::Scalar(0, (m_id % 2 + 1) * 50.0, 255), -1);
+		cv::Scalar(0, 0, 255), -1);
 	cv::circle(ortho, static_cast<cv::Point>(extract_xy_point(m_curPointTransedAnother)), 5,
-		cv::Scalar(255, 0, (m_id % 2 + 1) * 50.0), -1);
+		cv::Scalar(255, 0, 0), -1);
 }
 
 double DetectedCar::CalcCarDistance(const DetectedCar& front_car, const DetectedCar& back_car)

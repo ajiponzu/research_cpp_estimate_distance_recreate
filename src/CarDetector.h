@@ -11,7 +11,6 @@ private:
 	cv::Rect m_shape;
 	cv::Rect m_detectionArea;
 	cv::Point2f m_bodyDirection;
-	cv::Point3f m_startPointTransed;
 	cv::Point3f m_prevPointTransed;
 	cv::Point3f m_curPointTransed;
 	cv::Point3f m_curPointTransedAnother;
@@ -41,7 +40,6 @@ public:
 
 	const double& GetSpeed() const { return m_speed; }
 	const int64_t& GetId() const { return m_id; }
-	const bool IsInitialized() const { return m_initialized; }
 
 	void DrawOnImage(cv::Mat& img) const;
 	void DrawOnOrtho(cv::Mat& ortho) const;
@@ -82,7 +80,6 @@ private:
 	double m_carDistMeter = 0.0;
 	bool m_distOutputFlag = false;
 	uint64_t m_distEstimatedFrameCount = 0;
-	std::array<int64_t, 2> m_trackingCarIdList{ -1, -1 };
 
 public:
 	CarDetector() = delete;
@@ -92,6 +89,7 @@ public:
 
 	void Run(const cv::Mat& img);
 	void SetDetectedCar(const cv::Rect& rect);
+	void SetDistOutputFlag();
 
 	bool operator==(const CarDetector& other) const = delete;
 };

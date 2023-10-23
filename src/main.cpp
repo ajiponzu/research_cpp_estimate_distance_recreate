@@ -35,6 +35,7 @@ int main()
 			const auto drag_rect = GuiHandler::GetDragRect();
 			carDetector.SetDetectedCar(drag_rect);
 		}
+		carDetector.SetDistOutputFlag();
 
 		GuiHandler::Render();
 
