@@ -12,6 +12,7 @@ private:
 	static cv::Mat s_laneDirectionsMap;
 	static cv::Mat s_laneRatiosMap;
 	static cv::Mat s_roadMask;
+	static Func::GeoCvt::OrthoGeoInf s_orthoGeoInf;
 public:
 	static void Init(const int& road_num, const std::string& video_code, const std::string& ortho_code);
 
@@ -22,6 +23,7 @@ public:
 	static const cv::Mat& GetLaneDirectionsMap() { return s_laneDirectionsMap; }
 	static const cv::Mat& GetLaneRatiosMap() { return s_laneRatiosMap; }
 	static const cv::Mat& GetRoadMask() { return s_roadMask; }
+	static const Func::GeoCvt::OrthoGeoInf& GetOrthoGeoInf() { return s_orthoGeoInf; }
 
 	ResourceProvider() = delete;
 	bool operator==(const ResourceProvider& other) const = delete;

@@ -30,7 +30,14 @@ namespace Func
 
 	namespace GeoCvt
 	{
-		cv::Mat get_multicolor_mat(const std::string& path);
+		struct OrthoGeoInf
+		{
+			cv::Point2d geo_org_pos;
+			cv::Point2d convert_ratio;
+			double meter_ratio;
+		};
+
+		std::pair<cv::Mat, OrthoGeoInf> get_multicolor_mat(const std::string& path);
 		cv::Mat get_float_tif(const std::string& path);
 	};
 };

@@ -3,8 +3,14 @@
 
 //#define DISPLAY_SPEED
 
-constexpr auto g_VIDEO_CODE = "hiru";
+//constexpr auto g_VIDEO_CODE = "hiru";
 //constexpr auto g_VIDEO_CODE = "yugata";
+constexpr auto g_VIDEO_CODE = "kitani0";
+//constexpr auto g_VIDEO_CODE = "kitani1";
+//constexpr auto g_VIDEO_CODE = "kitani2";
+//constexpr auto g_VIDEO_CODE = "kitani3";
+//constexpr auto g_VIDEO_CODE = "kitani4";
+//constexpr auto g_VIDEO_CODE = "kitani5";
 
 constexpr auto g_ORTHO_CODE = "ortho";
 constexpr auto g_ROAD_NUM = 4;

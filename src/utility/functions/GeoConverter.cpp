@@ -3,8 +3,10 @@ using namespace Func;
 
 #include <gdal_priv.h>
 
-cv::Mat GeoCvt::get_multicolor_mat(const std::string& path)
+std::pair<cv::Mat, Func::GeoCvt::OrthoGeoInf> GeoCvt::get_multicolor_mat(const std::string& path)
 {
+	OrthoGeoInf ortho_geo_inf;
+
 	/* ラスタデータドライバの作成とファイル読み込み */
 	GDALDataset* poDataset;
 	GDALAllRegister();
@@ -12,24 +14,27 @@ cv::Mat GeoCvt::get_multicolor_mat(const std::string& path)
 	if (poDataset == nullptr)
 	{
 		std::cout << "not found" << std::endl;
-		return cv::Mat();
+		return { cv::Mat(), ortho_geo_inf };
 	}
 	/* end */
 
-#ifdef _DEBUG
 	/* 緯度経度情報の取得 */
 	double adfGeoTransform[6]{};
 	if ((void*)(poDataset->GetProjectionRef()) != nullptr)
 		printf("Projection is `%s'\n", poDataset->GetProjectionRef());
 	if (poDataset->GetGeoTransform(adfGeoTransform) == CPLErr::CE_None)
 	{
+		ortho_geo_inf.geo_org_pos = cv::Point2d(adfGeoTransform[0], adfGeoTransform[3]);
+		ortho_geo_inf.convert_ratio = cv::Point2d(adfGeoTransform[1], adfGeoTransform[5]);
+		ortho_geo_inf.meter_ratio = std::abs(adfGeoTransform[1]);
+#ifdef _DEBUG
 		printf("Origin = (%.6f,%.6f)\n",
 			adfGeoTransform[0], adfGeoTransform[3]);
 		printf("Pixel Size = (%.6f,%.6f)\n",
 			adfGeoTransform[1], adfGeoTransform[5]);
+#endif
 	}
 	/* end */
-#endif
 
 	/* ラスタデータの各バンドの読み込み */
 	int nXSize = poDataset->GetRasterXSize();
@@ -63,7 +68,7 @@ cv::Mat GeoCvt::get_multicolor_mat(const std::string& path)
 	/* end */
 	/* end */
 
-	return img;
+	return { img, ortho_geo_inf };
 }
 
 cv::Mat GeoCvt::get_float_tif(const std::string& path)
