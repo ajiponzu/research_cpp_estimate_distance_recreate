@@ -1,12 +1,8 @@
 #include "../CarDetector.h"
 
-static constexpr auto g_KILO_RATIO = 0.001;
 static constexpr auto g_FONT_FACE = cv::FONT_HERSHEY_DUPLEX;
 static constexpr auto g_FONT_SCALE = 0.6;
 static constexpr auto g_THICKNESS = 2;
-static constexpr auto g_CAR_BODY_ESTIMATED_METER = 4.05;
-static constexpr auto g_HOUR_SECOND_RATIO = 3600;
-static constexpr auto g_MATCHING_THR = 0.1;
 
 static float get_dsm_z(const cv::Point& point)
 {
@@ -18,14 +14,16 @@ static cv::Point3f get_transed_point(const cv::Point& point)
 	return ResourceProvider::GetTransedPointsMap().at<cv::Point3f>(point);
 }
 
-static cv::Point2f get_white_lane_dir(const cv::Point& point)
+static cv::Point2f get_white_lane_dir_altitude(const cv::Point& point)
 {
-	return ResourceProvider::GetLaneDirectionsMap().at<cv::Point2f>(point);
+	const auto& lane_inf = ResourceProvider::GetLaneDirectionsMap().at<cv::Vec4f>(point);
+	return cv::Point2f(lane_inf[0], lane_inf[1]);
 }
 
-static float get_white_lane_ratio(const cv::Point& point)
+static cv::Point2f get_white_lane_dir_ortho(const cv::Point& point)
 {
-	return ResourceProvider::GetLaneRatiosMap().at<float>(point);
+	const auto& lane_inf = ResourceProvider::GetLaneDirectionsMap().at<cv::Vec4f>(point);
+	return cv::Point2f(lane_inf[2], lane_inf[3]);
 }
 
 static bool isnot_on_mask(const cv::Point& point)
@@ -57,6 +55,15 @@ static double calc_car_distance(const cv::Point3f& pt1, const cv::Point3f& pt2)
 	return cv::norm(convert_xy_into_xyz(delta_xy, delta_z));
 }
 
+static double calc_vetors_angle(const cv::Point2f& vec1, const cv::Point2f& vec2, const bool& is_degree)
+{
+	auto rotate_angle = std::acos(vec1.dot(vec2) / (cv::norm(vec1) * cv::norm(vec2)));
+	if (is_degree)
+		rotate_angle *= 180.0 / std::numbers::pi;
+
+	return rotate_angle;
+}
+
 void DetectedCar::Init()
 {
 	const auto car_center = calc_rect_bottom_center(m_shape);
@@ -64,26 +71,32 @@ void DetectedCar::Init()
 	m_startFrameCount = m_curFrameCount = GuiHandler::GetFrameCount();
 	m_img = GuiHandler::GetFrame()(m_shape);
 	m_initialized = true;
+	m_orthoBodyDirection = get_white_lane_dir_ortho(car_center);
 }
 
 void DetectedCar::UpdateDetectionArea(const cv::Mat& frame)
 {
-	auto detection_area = cv::Rect(0, 0, m_shape.width + 20, m_shape.height + 20);
-	detection_area.x = std::max(0, m_shape.x - 10);
-	detection_area.y = std::max(0, m_shape.y - 10);
+	static constexpr auto MATCHING_RANGE = 10;
+
+	auto detection_area = cv::Rect(0, 0, m_shape.width + MATCHING_RANGE, m_shape.height + MATCHING_RANGE);
+	const auto center_of_m_shape = Func::Img::calc_rect_center(m_shape);
+	detection_area.x = std::max(0, center_of_m_shape.x - detection_area.width / 2);
+	detection_area.y = std::max(0, center_of_m_shape.y - detection_area.height / 2);
 	m_detectionArea = detection_area;
 	m_detectionAreaImg = frame(m_detectionArea).clone();
 }
 
 bool DetectedCar::Matching()
 {
+	static constexpr auto MATCHING_THR = 0.1;
+
 	cv::Mat match_results;
 	double max_val = 0.0;
 	cv::Point max_point;
 	cv::matchTemplate(m_detectionAreaImg, m_img, match_results, cv::TM_CCOEFF_NORMED);
 	cv::minMaxLoc(match_results, nullptr, &max_val, nullptr, &max_point);
 
-	if (max_val < g_MATCHING_THR)
+	if (max_val < MATCHING_THR)
 		return false;
 
 	auto result_location = m_detectionArea + max_point;
@@ -96,22 +109,27 @@ bool DetectedCar::Matching()
 
 void DetectedCar::UpdatePosition(const cv::Point& car_pos)
 {
+	static constexpr auto CAR_BODY_ESTIMATED_METER = 4.05;
+
 	m_prevPointTransed = m_curPointTransed;
 	m_curPointTransed = get_transed_point(car_pos);
 
 	// (白線方向 / [m / pix]) * 車体の全長[m] = 車体の他面位置[pix^2]
-	m_bodyDirection = get_white_lane_dir(car_pos);
-	const auto car_body_direction_pixel = g_CAR_BODY_ESTIMATED_METER * m_bodyDirection / ResourceProvider::GetOrthoGeoInf().meter_ratio;
+	m_orthoBodyDirection = get_white_lane_dir_ortho(car_pos);
+
+	const auto car_body_direction_pixel = CAR_BODY_ESTIMATED_METER * m_orthoBodyDirection / ResourceProvider::GetOrthoGeoInf().meter_ratio;
 	const auto another_point = static_cast<cv::Point>(extract_xy_point(m_curPointTransed) - car_body_direction_pixel);
 	m_curPointTransedAnother = convert_xy_into_xyz(another_point, get_dsm_z(another_point));
 }
 
 void DetectedCar::CalcMovingDistance()
 {
+	static constexpr auto KILO_RATIO = 0.001;
+
 	const auto position_delta_vec = m_curPointTransed - m_prevPointTransed;
-	const auto orthographic_vec = Func::Img::calc_orthographic_vec(m_bodyDirection, extract_xy_point(position_delta_vec));
-	const auto position_delta_kilometer = cv::norm(orthographic_vec) * ResourceProvider::GetOrthoGeoInf().meter_ratio * g_KILO_RATIO;
-	if (orthographic_vec.dot(m_bodyDirection) < 0)
+	const auto orthographic_vec = Func::Img::calc_orthographic_vec(m_orthoBodyDirection, extract_xy_point(position_delta_vec));
+	const auto position_delta_kilometer = cv::norm(orthographic_vec) * ResourceProvider::GetOrthoGeoInf().meter_ratio * KILO_RATIO;
+	if (orthographic_vec.dot(m_orthoBodyDirection) < 0)
 		m_movingDistance -= position_delta_kilometer;
 	else
 		m_movingDistance += position_delta_kilometer;
@@ -119,10 +137,12 @@ void DetectedCar::CalcMovingDistance()
 
 void DetectedCar::CalcSpeed()
 {
+	static constexpr auto HOUR_SECOND_RATIO = 3600;
+
 	CalcMovingDistance();
 
 	const auto tracking_frame_count = (m_curFrameCount - m_startFrameCount);
-	const auto delta_kilometer_per_frame = m_movingDistance * g_HOUR_SECOND_RATIO * GuiHandler::GetFPS(); // 1時間あたりのフレーム数と移動距離の積
+	const auto delta_kilometer_per_frame = m_movingDistance * HOUR_SECOND_RATIO * GuiHandler::GetFPS(); // 1時間あたりのフレーム数と移動距離の積
 	m_speed = delta_kilometer_per_frame / tracking_frame_count; // 1時間x(FPS)フレームでの移動距離 / 移動フレーム数
 }
 
@@ -175,16 +195,16 @@ void DetectedCar::DrawOnOrtho(cv::Mat& ortho) const
 		cv::Scalar(255, 0, 0), -1);
 
 	//cv::Point2d point(3950.671749355036, -102769.58450223645);
-	cv::Point2d point(4124.100393123896, -102586.16094288687);
-	const auto diff = (point - ResourceProvider::GetOrthoGeoInf().geo_org_pos);
-	cv::Point result_point(diff.x / ResourceProvider::GetOrthoGeoInf().convert_ratio.x, diff.y / ResourceProvider::GetOrthoGeoInf().convert_ratio.y);
-	std::cout << "*" << std::endl;
-	std::cout << ResourceProvider::GetOrthoGeoInf().geo_org_pos << std::endl;
-	std::cout << diff << std::endl;
-	std::cout << result_point << std::endl;
-	std::cout << "*" << std::endl;
-	cv::circle(ortho, result_point, 5,
-		cv::Scalar(0, 255, 0), -1);
+	//cv::Point2d point(4124.100393123896, -102586.16094288687);
+	//const auto diff = (point - ResourceProvider::GetOrthoGeoInf().geo_org_pos);
+	//cv::Point result_point(diff.x / ResourceProvider::GetOrthoGeoInf().convert_ratio.x, diff.y / ResourceProvider::GetOrthoGeoInf().convert_ratio.y);
+	//std::cout << "*" << std::endl;
+	//std::cout << ResourceProvider::GetOrthoGeoInf().geo_org_pos << std::endl;
+	//std::cout << diff << std::endl;
+	//std::cout << result_point << std::endl;
+	//std::cout << "*" << std::endl;
+	//cv::circle(ortho, result_point, 5,
+	//	cv::Scalar(0, 255, 0), -1);
 }
 
 double DetectedCar::CalcCarDistance(const DetectedCar& front_car, const DetectedCar& back_car)

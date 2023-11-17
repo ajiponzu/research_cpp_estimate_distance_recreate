@@ -27,6 +27,7 @@ int main()
 
 	while (GuiHandler::EventPoll())
 	{
+		//GuiHandler::UpdateBackgroundFrame();
 #ifdef DISPLAY_SPEED
 		const auto start = std::chrono::high_resolution_clock::now();
 #endif

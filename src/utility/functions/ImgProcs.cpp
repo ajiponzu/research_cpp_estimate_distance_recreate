@@ -51,15 +51,15 @@ cv::Mat Img::get_white_lane(const cv::Mat& mat, const int& n_k)
 	cv::Vec3b lane_color = p_km_centers[max_mean_idx];
 	cv::Vec3b bg_color = p_km_centers[min_mean_idx];
 	auto pix_lamda = [&](cv::Vec3b& pix, const int* pos)
-	{
-		auto new_color = cv::Vec3b(128, 128, 128);
-		if (pix == lane_color)
-			new_color = cv::Vec3b(255, 255, 255);
-		else if (pix == bg_color)
-			new_color = cv::Vec3b(0, 0, 0);
+		{
+			auto new_color = cv::Vec3b(128, 128, 128);
+			if (pix == lane_color)
+				new_color = cv::Vec3b(255, 255, 255);
+			else if (pix == bg_color)
+				new_color = cv::Vec3b(0, 0, 0);
 
-		pix = new_color;
-	};
+			pix = new_color;
+		};
 	result.forEach<cv::Vec3b>(pix_lamda);
 
 	return result;
@@ -239,8 +239,10 @@ cv::Mat Img::get_img_slice(const cv::Mat& src, const cv::Rect& area, const int& 
 {
 	cv::Mat dst = src(area);
 
-	if (output_channels == 1)
+	if (output_channels == 1 && dst.channels() == 3)
 		cv::cvtColor(dst, dst, cv::COLOR_BGR2GRAY);
+	if (output_channels == 3 && dst.channels() == 1)
+		cv::cvtColor(dst, dst, cv::COLOR_GRAY2BGR);
 
 	return dst;
 }

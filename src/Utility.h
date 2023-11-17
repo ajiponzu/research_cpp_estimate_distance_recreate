@@ -5,14 +5,16 @@
 class ResourceProvider
 {
 private:
+	friend class GuiHandler;
+
 	static cv::Mat s_orthoDsm;
 	static cv::Mat s_orthoTif;
 	static cv::Mat s_orthoRoadMask;
 	static cv::Mat s_transedPointsMap;
 	static cv::Mat s_laneDirectionsMap;
-	static cv::Mat s_laneRatiosMap;
 	static cv::Mat s_roadMask;
 	static Func::GeoCvt::OrthoGeoInf s_orthoGeoInf;
+
 public:
 	static void Init(const int& road_num, const std::string& video_code, const std::string& ortho_code);
 
@@ -21,7 +23,6 @@ public:
 	static const cv::Mat& GetOrthoRoadMask() { return s_orthoRoadMask; }
 	static const cv::Mat& GetTransedPointsMap() { return s_transedPointsMap; }
 	static const cv::Mat& GetLaneDirectionsMap() { return s_laneDirectionsMap; }
-	static const cv::Mat& GetLaneRatiosMap() { return s_laneRatiosMap; }
 	static const cv::Mat& GetRoadMask() { return s_roadMask; }
 	static const Func::GeoCvt::OrthoGeoInf& GetOrthoGeoInf() { return s_orthoGeoInf; }
 
@@ -56,6 +57,10 @@ private:
 	static cv::VideoCapture s_videoCapture;
 	static std::unique_ptr<Renderer> s_ptrRenderer;
 	static std::unordered_set<int> s_keyEventTable;
+
+	static std::shared_ptr<cv::BackgroundSubtractor> s_backgroundCreator;
+	static cv::Mat s_backgroundFrame;
+	static cv::Mat s_foregroundFrame;
 
 	// スクリーンショットを撮影する
 	static void ScreenShot();
@@ -97,6 +102,11 @@ public:
 	static cv::Rect GetDragRect();
 	// 指定したキーのイベントを取得する
 	static bool GetKeyEvent(const int& keyCode) { return s_keyEventTable.contains(keyCode); }
+
+	static void UpdateBackgroundFrame();
+
+	static const cv::Mat& GetBackgroundFrame() { return s_backgroundFrame; }
+	static const cv::Mat& GetForegroundFrame() { return s_foregroundFrame; }
 
 	GuiHandler() = delete;
 	bool operator==(const GuiHandler& other) const = delete;

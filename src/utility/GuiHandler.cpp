@@ -17,6 +17,10 @@ cv::Mat GuiHandler::s_currentFrame{};
 cv::VideoCapture GuiHandler::s_videoCapture;
 std::unique_ptr<Renderer> GuiHandler::s_ptrRenderer = nullptr;
 std::unordered_set<int>  GuiHandler::s_keyEventTable{};
+
+std::shared_ptr<cv::BackgroundSubtractor> GuiHandler::s_backgroundCreator;
+cv::Mat GuiHandler::s_backgroundFrame;
+cv::Mat GuiHandler::s_foregroundFrame;
 /* end */
 
 /* global変数 */
@@ -95,6 +99,8 @@ void GuiHandler::Initialize()
 	cv::namedWindow(g_WND_NAME, cv::WindowFlags::WINDOW_FULLSCREEN);
 	cv::setMouseCallback(g_WND_NAME, RecvMouseMsg);
 	cv::moveWindow(g_WND_NAME, 0, 0);
+
+	s_backgroundCreator = cv::createBackgroundSubtractorKNN();
 }
 
 bool GuiHandler::EventPoll()
@@ -187,4 +193,10 @@ cv::Rect GuiHandler::GetDragRect()
 	const int height = std::abs(cl_y - dr_y);
 
 	return cv::Rect(rx, ry, width, height);
+}
+
+void GuiHandler::UpdateBackgroundFrame()
+{
+	s_backgroundCreator->apply(s_currentFrame, s_foregroundFrame);
+	s_backgroundCreator->getBackgroundImage(s_backgroundFrame);
 }

@@ -5,7 +5,6 @@ cv::Mat ResourceProvider::s_orthoTif;
 cv::Mat ResourceProvider::s_orthoRoadMask;
 cv::Mat ResourceProvider::s_transedPointsMap;
 cv::Mat ResourceProvider::s_laneDirectionsMap;
-cv::Mat ResourceProvider::s_laneRatiosMap;
 cv::Mat ResourceProvider::s_roadMask;
 Func::GeoCvt::OrthoGeoInf ResourceProvider::s_orthoGeoInf;
 
@@ -35,7 +34,5 @@ void ResourceProvider::Init(const int& road_num, const std::string& video_code, 
 	cv::cvtColor(s_roadMask, s_roadMask, cv::COLOR_GRAY2BGR);
 	s_transedPointsMap = transed_points_map.clone();
 
-	cv::split(lanes_inf_map, splited_mat_list);
-	cv::merge(std::vector{ splited_mat_list[0], splited_mat_list[1] }, s_laneDirectionsMap);
-	s_laneRatiosMap = splited_mat_list[2].clone();
+	s_laneDirectionsMap = lanes_inf_map.clone();
 }
