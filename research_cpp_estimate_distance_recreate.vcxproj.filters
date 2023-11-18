@@ -37,6 +37,10 @@
     <ClCompile Include="src\utility\functions\ImgProcs.cpp">
       <Filter>utility\functions</Filter>
     </ClCompile>
+    <ClCompile Include="src\detector\ExperimentalDetector.cpp">
+      <Filter>detector</Filter>
+    </ClCompile>
+    <ClCompile Include="src\detector\ExperimentalCar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch\stdafx.h">
@@ -47,6 +51,7 @@
     <ClInclude Include="src\utility\Functions.h">
       <Filter>utility</Filter>
     </ClInclude>
+    <ClInclude Include="src\ExperimentalDetector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

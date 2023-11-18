@@ -135,6 +135,8 @@
     </ClCompile>
     <ClCompile Include="src\detector\CarDetector.cpp" />
     <ClCompile Include="src\detector\DetectedCar.cpp" />
+    <ClCompile Include="src\detector\ExperimentalCar.cpp" />
+    <ClCompile Include="src\detector\ExperimentalDetector.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\utility\functions\GeoConverter.cpp" />
     <ClCompile Include="src\utility\functions\ImgProcs.cpp" />
@@ -144,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="pch\stdafx.h" />
     <ClInclude Include="src\CarDetector.h" />
+    <ClInclude Include="src\ExperimentalDetector.h" />
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\utility\Functions.h" />
   </ItemGroup>

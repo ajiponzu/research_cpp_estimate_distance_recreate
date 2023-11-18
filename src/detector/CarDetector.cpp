@@ -34,13 +34,16 @@ void CarDetector::Run(const cv::Mat& _img)
 	uint32_t count = 0;
 	for (auto& car : m_detectedCars)
 	{
-		if (car.Tracking(frame))
-			;
-		else
+		if (car && car->IsInitialized())
 		{
-			car = DetectedCar();
-			m_distOutputFlag = false;
-			m_emptyCarId = count;
+			if (car->Tracking(frame))
+				;
+			else
+			{
+				car.reset(new DetectedCar());
+				m_distOutputFlag = false;
+				m_emptyCarId = count;
+			}
 		}
 		count++;
 	}
@@ -48,8 +51,8 @@ void CarDetector::Run(const cv::Mat& _img)
 	if (m_distOutputFlag)
 	{
 		m_carDistMeter = std::min(
-			DetectedCar::CalcCarDistance(m_detectedCars[0], m_detectedCars[1]),
-			DetectedCar::CalcCarDistance(m_detectedCars[1], m_detectedCars[0]));
+			DetectedCar::CalcCarDistance(*m_detectedCars[0], *m_detectedCars[1]),
+			DetectedCar::CalcCarDistance(*m_detectedCars[1], *m_detectedCars[0]));
 	}
 	else
 	{
@@ -112,7 +115,7 @@ void CarDetector::ThisRenderer::OutputData(const cv::Mat& img, const cv::Mat& or
 		m_outputCsvStream
 			<< std::format("{}, {:.1f}, {:.2f}, {:.2f}",
 				dist_estimated_frame_count, car_dist_meter,
-				m_ptrDetector->m_detectedCars[0].GetSpeed(), m_ptrDetector->m_detectedCars[1].GetSpeed())
+				m_ptrDetector->m_detectedCars[0]->GetSpeed(), m_ptrDetector->m_detectedCars[1]->GetSpeed())
 			<< std::endl;
 		dist_estimated_frame_count++;
 	}
@@ -122,7 +125,7 @@ void CarDetector::ThisRenderer::OutputData(const cv::Mat& img, const cv::Mat& or
 			g_OUTPUT_CSV_PATH, timestamp_str));
 		m_outputCsvStream
 			<< std::format("{}, speed_{}, speed_{}",
-				g_CSV_HEADER, detected_cars[0].GetId(), detected_cars[1].GetId())
+				g_CSV_HEADER, detected_cars[0]->GetId(), detected_cars[1]->GetId())
 			<< std::endl;
 	}
 }
@@ -175,11 +178,14 @@ void CarDetector::ThisRenderer::OutputDetections(cv::Mat& img)
 	uint64_t car_idx = 0;
 	for (const auto& detected_car : detected_cars)
 	{
-		detected_car.DrawOnImage(img);
+		if (detected_car)
+		{
+			detected_car->DrawOnImage(img);
 #ifdef SHOW_ORTHO
-		detected_car.DrawOnOrtho(ortho);
+			detected_car->DrawOnOrtho(ortho);
 #endif
-		car_idx++;
+			car_idx++;
+		}
 	}
 
 	if (m_ptrDetector->m_distOutputFlag)
@@ -217,12 +223,7 @@ void CarDetector::SetDetectedCar(const cv::Rect& rect)
 	if (rect.width < 5 || rect.height < 5)
 		return;
 
-	auto detection_area = cv::Rect(0, 0, rect.width + 20, rect.height + 20);
-	detection_area.x = std::max(0, rect.x - 10);
-	detection_area.y = std::max(0, rect.y - 10);
-
-	m_detectedCars[m_emptyCarId % m_detectedCars.size()]
-		= DetectedCar(rect, detection_area, m_newCarId);
+	m_detectedCars[m_emptyCarId % m_detectedCars.size()].reset(new DetectedCar(rect, m_newCarId));
 	m_newCarId++;
 	m_emptyCarId++;
 }

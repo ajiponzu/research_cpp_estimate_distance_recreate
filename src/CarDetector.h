@@ -3,7 +3,7 @@
 
 class DetectedCar
 {
-private:
+protected:
 	int64_t m_id = -1;
 	uint64_t m_startFrameCount = 0;
 	uint64_t m_curFrameCount = 0;
@@ -19,7 +19,7 @@ private:
 	cv::Mat m_detectionAreaImg;
 	bool m_initialized = false;
 
-	void Init();
+	virtual void Init();
 	void UpdateDetectionArea(const cv::Mat& frame);
 	bool Matching();
 	void UpdatePosition(const cv::Point& car_pos);
@@ -27,54 +27,55 @@ private:
 	void CalcSpeed();
 public:
 	DetectedCar() = default;
-	DetectedCar(const cv::Rect& shape, const cv::Rect& detection_area, const int64_t& id)
+	DetectedCar(const cv::Rect& shape, const int64_t& id)
 		: m_shape(shape)
-		, m_detectionArea(detection_area)
 		, m_id(id)
 	{
 		Init();
 	}
 	bool operator==(const DetectedCar& other) const = default;
 
-	bool Tracking(const cv::Mat& frame);
+	virtual bool Tracking(const cv::Mat& frame);
 
 	const double& GetSpeed() const { return m_speed; }
 	const int64_t& GetId() const { return m_id; }
 
-	void DrawOnImage(cv::Mat& img) const;
-	void DrawOnOrtho(cv::Mat& ortho) const;
+	virtual void DrawOnImage(cv::Mat& img) const;
+	virtual void DrawOnOrtho(cv::Mat& ortho) const;
+
+	const bool& IsInitialized() const { return m_initialized; }
 
 	static double CalcCarDistance(const DetectedCar& front_car, const DetectedCar& back_car);
 };
 
 class CarDetector
 {
-private:
+protected:
 
 	class ThisRenderer : public Renderer
 	{
-	private:
+	protected:
 		std::shared_ptr<CarDetector> m_ptrDetector;
 		cv::VideoWriter m_videoWriter;
 		cv::VideoWriter m_orthoVideoWriter;
 		std::ofstream m_outputCsvStream;
 
-		void Render(cv::Mat& img) override;
+		virtual void Render(cv::Mat& img) override;
 
-		void CloseOutputStream();
+		virtual void CloseOutputStream();
 #ifdef SHOW_ORTHO
-		void OutputData(const cv::Mat& img, const cv::Mat& ortho);
+		virtual void OutputData(const cv::Mat& img, const cv::Mat& ortho);
 #else
-		void OutputData(const cv::Mat& img);
+		virtual void OutputData(const cv::Mat& img);
 #endif
-		void OutputDetections(cv::Mat& img);
+		virtual void OutputDetections(cv::Mat& img);
 	public:
 		ThisRenderer() = delete;
 		ThisRenderer(CarDetector* ptr) : m_ptrDetector(ptr) {}
 		bool operator==(const ThisRenderer& other) const = delete;
 	};
 
-	std::array<DetectedCar, 2> m_detectedCars;
+	std::array<std::shared_ptr<DetectedCar>, 2> m_detectedCars;
 	int64_t m_newCarId = 0;
 	uint64_t m_emptyCarId = 0;
 	double m_carDistMeter = 0.0;
@@ -87,9 +88,9 @@ public:
 
 	ThisRenderer* CreateRenderer() { return new ThisRenderer(this); }
 
-	void Run(const cv::Mat& img);
-	void SetDetectedCar(const cv::Rect& rect);
-	void SetDistOutputFlag();
+	virtual void Run(const cv::Mat& img);
+	virtual void SetDetectedCar(const cv::Rect& rect);
+	virtual void SetDistOutputFlag();
 
 	bool operator==(const CarDetector& other) const = delete;
 };
