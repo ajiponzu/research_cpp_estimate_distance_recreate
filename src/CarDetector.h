@@ -84,7 +84,11 @@ protected:
 
 public:
 	CarDetector() = delete;
-	CarDetector(const std::wstring& model_path = L"", const cv::Size& proc_imgsz = cv::Size(640, 640)) {}
+	CarDetector(const std::wstring& model_path = L"", const cv::Size& proc_imgsz = cv::Size(640, 640))
+	{
+		m_detectedCars[0].reset(new DetectedCar());
+		m_detectedCars[1].reset(new DetectedCar());
+	}
 
 	ThisRenderer* CreateRenderer() { return new ThisRenderer(this); }
 

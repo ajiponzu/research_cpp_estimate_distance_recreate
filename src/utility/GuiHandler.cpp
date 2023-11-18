@@ -170,6 +170,14 @@ double GuiHandler::GetFPS()
 	return s_videoCapture.get(cv::CAP_PROP_FPS);
 }
 
+double GuiHandler::GetSPF()
+{
+	if (!s_useVideo)
+		return 0.0;
+
+	return 1.0 / GetFPS();
+}
+
 const std::pair<int, int>& GuiHandler::GetClickPoint()
 {
 	std::cout << std::format("click: ({}, {})", s_clickPoint.first, s_clickPoint.second) << std::endl;

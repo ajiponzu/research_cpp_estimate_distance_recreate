@@ -155,10 +155,11 @@ bool DetectedCar::Tracking(const cv::Mat& frame)
 	UpdateDetectionArea(frame);
 
 	const auto matching_result = Matching();
-	const auto car_pos = calc_rect_bottom_center(m_shape);
-	if (!matching_result || isnot_on_mask(car_pos))
+	const auto center_car_pos = Func::Img::calc_rect_center(m_shape);
+	if (!matching_result || isnot_on_mask(center_car_pos))
 		return false;
 
+	const auto car_pos = calc_rect_bottom_center(m_shape);
 	UpdatePosition(car_pos);
 	CalcSpeed();
 
@@ -193,18 +194,6 @@ void DetectedCar::DrawOnOrtho(cv::Mat& ortho) const
 		cv::Scalar(0, 0, 255), -1);
 	cv::circle(ortho, static_cast<cv::Point>(extract_xy_point(m_curPointTransedAnother)), 5,
 		cv::Scalar(255, 0, 0), -1);
-
-	cv::Point2d point(3950.671749355036, -102769.58450223645);
-	//cv::Point2d point(4124.100393123896, -102586.16094288687);
-	const auto diff = (point - ResourceProvider::GetOrthoGeoInf().geo_org_pos);
-	cv::Point result_point(diff.x / ResourceProvider::GetOrthoGeoInf().convert_ratio.x, diff.y / ResourceProvider::GetOrthoGeoInf().convert_ratio.y);
-	//	std::cout << "*" << std::endl;
-	//	std::cout << ResourceProvider::GetOrthoGeoInf().geo_org_pos << std::endl;
-	//	std::cout << diff << std::endl;
-	//	std::cout << result_point << std::endl;
-	//	std::cout << "*" << std::endl;
-	cv::circle(ortho, result_point, 5,
-		cv::Scalar(0, 255, 0), -1);
 }
 
 double DetectedCar::CalcCarDistance(const DetectedCar& front_car, const DetectedCar& back_car)

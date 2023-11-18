@@ -94,6 +94,7 @@ public:
 	static void SetRenderer(Renderer* ptrRenderer);
 	// ビデオリソースがある場合にそのビデオのFPSを取得する
 	static double GetFPS();
+	static double GetSPF();
 	// クリックした座標を取得する
 	static const std::pair<int, int>& GetClickPoint();
 	// ドラッグ終了時のカーソル座標を取得する
