@@ -155,11 +155,10 @@ bool DetectedCar::Tracking(const cv::Mat& frame)
 	UpdateDetectionArea(frame);
 
 	const auto matching_result = Matching();
-	const auto center_car_pos = Func::Img::calc_rect_center(m_shape);
-	if (!matching_result || isnot_on_mask(center_car_pos))
+	const auto car_pos = calc_rect_bottom_center(m_shape);
+	if (!matching_result || isnot_on_mask(car_pos))
 		return false;
 
-	const auto car_pos = calc_rect_bottom_center(m_shape);
 	UpdatePosition(car_pos);
 	CalcSpeed();
 

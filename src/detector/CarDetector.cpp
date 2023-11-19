@@ -67,6 +67,9 @@ void CarDetector::ThisRenderer::Render(cv::Mat& img)
 	cv::addWeighted(img, 0.85, road_mask, 0.15, 1.0, img);
 
 	OutputDetections(img);
+	cv::putText(img, std::to_string(GuiHandler::GetFrameCount()),
+		cv::Point(10, 500),
+		g_FONT_FACE, g_FONT_SCALE, cv::Scalar(255, 255, 255), g_THICKNESS);
 }
 
 void CarDetector::ThisRenderer::CloseOutputStream()

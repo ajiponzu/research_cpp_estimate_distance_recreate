@@ -32,6 +32,18 @@ static double calc_delta_time_abs(const GpsData& prev, const GpsData& next)
 	return std::abs(next_seconds - prev_seconds);
 }
 
+static cv::Point2f extract_xy_point(const cv::Point3f& point)
+{
+	return cv::Point2f(point.x, point.y);
+}
+
+static cv::Point calc_rect_bottom_center(const cv::Rect& rect)
+{
+	const auto bl = rect.tl() + cv::Point(0, rect.height);
+
+	return Func::Img::calc_line_center(bl, rect.br());
+}
+
 void ExperimentalCar::Init()
 {
 	std::ifstream ifs(std::format("resources/{}/{}_velocity{}.csv", m_carName, m_carName, m_experimentalId));
@@ -75,28 +87,30 @@ void ExperimentalCar::Init()
 
 		m_gpsDataList.push_back(gps_data);
 	}
+
+	m_ofstream.open(std::format("outputs/experiments/experiment_{}{}.csv", m_carName, m_experimentalId));
+	m_ofstream << "car_name, alt_x, alt_y, ortho_x, ortho_y, correct_x, correct_y, transed_error, speed, speed_correct, speed_error" << std::endl;
 }
 
 void ExperimentalCar::CalcSpeedError()
 {
-	//if (m_carName == "jimny")
-		//if (m_carName == "levorg")
-	std::cout << std::format("{}: [{}]---{}", m_carName, GuiHandler::GetFrameCount(), m_gpsDataList.at(m_evaluateCount).time) << std::endl;
+	m_speedError = std::abs(m_speed - m_gpsDataList[m_evaluateCount].velocity);
 }
 
 void ExperimentalCar::CalcTransedError()
 {
-	//cv::Point2d point(3950.671749355036, -102769.58450223645);
-	//cv::Point2d point(4124.100393123896, -102586.16094288687);
-	//const auto diff = (point - ResourceProvider::GetOrthoGeoInf().geo_org_pos);
-	//cv::Point result_point(diff.x / ResourceProvider::GetOrthoGeoInf().convert_ratio.x, diff.y / ResourceProvider::GetOrthoGeoInf().convert_ratio.y);
-	//	std::cout << "*" << std::endl;
-	//	std::cout << ResourceProvider::GetOrthoGeoInf().geo_org_pos << std::endl;
-	//	std::cout << diff << std::endl;
-	//	std::cout << result_point << std::endl;
-	//	std::cout << "*" << std::endl;
-	//cv::circle(ortho, result_point, 5,
-	//	cv::Scalar(0, 255, 0), -1);
+	const auto geo_ref_point =
+		cv::Point2d(m_gpsDataList[m_evaluateCount].longitude, m_gpsDataList[m_evaluateCount].latitude)
+		- ResourceProvider::GetOrthoGeoInf().geo_org_pos;
+
+	const auto converted_point = cv::Point2d(
+		geo_ref_point.x / ResourceProvider::GetOrthoGeoInf().convert_ratio.x,
+		geo_ref_point.y / ResourceProvider::GetOrthoGeoInf().convert_ratio.y
+	);
+
+	m_transedError = static_cast<cv::Point2f>(converted_point)
+		- extract_xy_point(m_curPointTransed + m_curPointTransedAnother) / 2;
+	m_correctPosition = converted_point;
 }
 
 bool ExperimentalCar::Tracking(const cv::Mat& frame)
@@ -106,26 +120,36 @@ bool ExperimentalCar::Tracking(const cv::Mat& frame)
 	const auto tracking_count = GuiHandler::GetFrameCount() - m_startFrameCount;
 	const auto data_exist_frame_count = std::floor(m_dataSpanFrameCount * m_passedSpanCount);
 
+	m_calculateFlag = false;
 	if (ret && tracking_count == data_exist_frame_count)
 	{
-		bool calculate_flag = false;
-
 		double delta_time_abs = 0.0;
 		if (m_evaluateCount == 0)
 		{
 			delta_time_abs = get_milliseconds_from_datetime_string(m_gpsDataList[0]);
-			calculate_flag = (m_carName == "jimny" && delta_time_abs == 0.000) || (m_carName == "levorg" && delta_time_abs == 0.999);
+			m_calculateFlag = (m_carName == "jimny" && delta_time_abs == 0.000) || (m_carName == "levorg" && delta_time_abs == 0.999);
 		}
 		else
 		{
 			delta_time_abs = calc_delta_time_abs(m_gpsDataList[m_evaluateCount - 1], m_gpsDataList[m_evaluateCount]);
-			calculate_flag = delta_time_abs <= m_skipSpanCount * 0.201;
+			m_calculateFlag = delta_time_abs <= m_skipSpanCount * 0.201;
 		}
 
-		if (calculate_flag)
+		if (m_calculateFlag)
 		{
+			std::cout
+				<< std::format("{}: [{} / ({})]---{}",
+					m_carName, GuiHandler::GetFrameCount(), GuiHandler::GetAllFrameNum(), m_gpsDataList.at(m_evaluateCount).time)
+				<< std::endl;
 			CalcSpeedError();
 			CalcTransedError();
+
+			const auto car_bottom = calc_rect_bottom_center(m_shape);
+			const auto transed_point = (m_curPointTransed + m_curPointTransedAnother) / 2;
+			m_ofstream << std::format("{},{},{},{},{},{},{},{},{},{}\n",
+				m_carName, car_bottom.x, car_bottom.y,
+				transed_point.x, transed_point.y, m_correctPosition.x, m_correctPosition.y,
+				m_speed, m_gpsDataList[m_evaluateCount].velocity, m_speedError);
 			m_evaluateCount++;
 			m_skipSpanCount = 1;
 		}
@@ -146,4 +170,5 @@ void ExperimentalCar::DrawOnImage(cv::Mat& img) const
 void ExperimentalCar::DrawOnOrtho(cv::Mat& ortho) const
 {
 	super::DrawOnOrtho(ortho);
+	cv::circle(ortho, m_transedError, 5, cv::Scalar(255, 255, 0), -1);
 }

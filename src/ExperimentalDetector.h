@@ -22,10 +22,13 @@ protected:
 	int64_t m_experimentalId;
 	double m_dataSpanFrameCount;
 	double m_speedError;
+	cv::Point2f m_correctPosition;
 	cv::Point2f m_transedError;
 	std::string m_carName;
 	std::string m_experimentStartTime;
 	std::vector<GpsData> m_gpsDataList;
+	std::ofstream m_ofstream;
+	bool m_calculateFlag;
 
 	virtual void Init() override;
 
@@ -51,6 +54,8 @@ public:
 
 	const double& GetSpeedError() const { return m_speedError; }
 	const cv::Point2f& GetTransedError() const { return m_transedError; }
+	const cv::Point2f& GetCorrectPosition() const { return m_correctPosition; }
+	const bool DoneCalculatedFlag() const { return m_calculateFlag; }
 
 	virtual void DrawOnImage(cv::Mat& img) const;
 	virtual void DrawOnOrtho(cv::Mat& ortho) const;
@@ -66,6 +71,7 @@ protected:
 	int64_t m_experimentalId;
 	std::vector<std::string> m_carNameList;
 	std::vector<std::string> m_experimentStartTimeList;
+	std::ofstream m_ofstream;
 
 public:
 	ExperimentalDetector() = delete;
@@ -76,7 +82,11 @@ public:
 		m_dataSpanFrameCount(data_span_frame_count),
 		m_carNameList(car_name_list),
 		m_experimentStartTimeList(experiment_start_time_list),
-		m_experimentalId(experimental_id) {}
+		m_experimentalId(experimental_id)
+	{
+		m_ofstream.open(std::format("outputs/experiments/experiment_distance{}.csv", m_experimentalId));
+		m_ofstream << "distance, correct_distance, distance_error" << std::endl;
+	}
 
 	virtual void Run(const cv::Mat& img);
 	virtual void SetDetectedCar(const cv::Rect& rect);

@@ -178,6 +178,11 @@ double GuiHandler::GetSPF()
 	return 1.0 / GetFPS();
 }
 
+uint64_t GuiHandler::GetAllFrameNum()
+{
+	return s_videoCapture.get(cv::CAP_PROP_FRAME_COUNT);
+}
+
 const std::pair<int, int>& GuiHandler::GetClickPoint()
 {
 	std::cout << std::format("click: ({}, {})", s_clickPoint.first, s_clickPoint.second) << std::endl;

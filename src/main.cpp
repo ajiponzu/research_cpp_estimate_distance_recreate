@@ -83,8 +83,6 @@ static int experiment()
 	GuiHandler::Initialize();
 	ResourceProvider::Init(g_ROAD_NUM, std::format("{}{}", VIDEO_CODE, EXPERIMENTAL_ID), g_ORTHO_CODE);
 	GuiHandler::SetVideoResource(std::format("resources/{}{}/input.mp4", VIDEO_CODE, EXPERIMENTAL_ID));
-	//ExperimentalDetector car_detector(GuiHandler::GetFPS(), { "jimny", "levorg" },
-	//	start_time_list[EXPERIMENTAL_ID], EXPERIMENTAL_ID, L"", cv::Size(g_PROC_IMGSZ, g_PROC_IMGSZ));
 	ExperimentalDetector car_detector(GuiHandler::GetFPS() * 0.2,
 		{ "jimny", "levorg" }, start_time_list[EXPERIMENTAL_ID], EXPERIMENTAL_ID, L"", cv::Size(g_PROC_IMGSZ, g_PROC_IMGSZ));
 	GuiHandler::SetRenderer(car_detector.CreateRenderer());
@@ -119,7 +117,7 @@ static int experiment()
 	std::cout << "end....." << std::endl;
 
 	return 0;
-}
+	}
 
 int main()
 {
