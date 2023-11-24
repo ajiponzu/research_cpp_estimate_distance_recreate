@@ -56,18 +56,18 @@ static int experiment()
 	//static constexpr auto EXPERIMENTAL_ID = 0;
 	//static constexpr auto EXPERIMENTAL_ID = 1;
 	//static constexpr auto EXPERIMENTAL_ID = 2;
-	static constexpr auto EXPERIMENTAL_ID = 3;
+	//static constexpr auto EXPERIMENTAL_ID = 3;
 	//static constexpr auto EXPERIMENTAL_ID = 4;
-	//static constexpr auto EXPERIMENTAL_ID = 5;
+	static constexpr auto EXPERIMENTAL_ID = 5;
 
 	std::vector<std::vector<std::string>> start_time_list =
 	{
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"2023-11-05T10:26:39.000+09:00", "2023-11-05T10:26:38.999+09:00"},
-		{"", ""},
-		{"", ""},
+		{"2023-11-05 09:58:27.000", "2023-11-05 09:58:26.999"},
+		{"2023-11-05 10:11:01.999", "2023-11-05 10:11:02.000"},
+		{"2023-11-05 10:17:29.999", "2023-11-05 10:17:29.999"},
+		{"2023-11-05 10:26:39.000", "2023-11-05 10:26:38.999"},
+		{"2023-11-05 10:44:52.999", "2023-11-05 10:44:53.000"},
+		{"2023-11-06 15:28:51.000", "2023-11-06 15:28:51.000"},
 	};
 
 	struct ExperimentalStartData
@@ -76,9 +76,41 @@ static int experiment()
 		std::unordered_map<std::string, cv::Rect> car_pos_hash{};
 	} experimental_start_data;
 
-	experimental_start_data.start_frame_count = 126;
-	experimental_start_data.car_pos_hash["jimny"] = cv::Rect(610, 437, 14, 16);
-	experimental_start_data.car_pos_hash["levorg"] = cv::Rect(615, 407, 14, 14);
+	switch (EXPERIMENTAL_ID)
+	{
+	case 0:
+		experimental_start_data.start_frame_count = 89;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(475, 661, 18, 17);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(482, 701, 17, 20);
+		break;
+	case 1:
+		experimental_start_data.start_frame_count = 139;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(611, 447, 13, 16);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(611, 425, 17, 15);
+		break;
+	case 2:
+		experimental_start_data.start_frame_count = 115;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(473, 654, 17, 16);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(484, 717, 20, 17);
+		break;
+	case 3:
+		experimental_start_data.start_frame_count = 126;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(610, 437, 14, 16);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(615, 407, 14, 14);
+		break;
+	case 4:
+		experimental_start_data.start_frame_count = 78;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(986, 650, 21, 21);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(959, 700, 24, 21);
+		break;
+	case 5:
+		experimental_start_data.start_frame_count = 86;
+		experimental_start_data.car_pos_hash["jimny"] = cv::Rect(1178, 338, 12, 15);
+		experimental_start_data.car_pos_hash["levorg"] = cv::Rect(1159, 323, 14, 14);
+		break;
+	default:
+		break;
+	}
 
 	GuiHandler::Initialize();
 	ResourceProvider::Init(g_ROAD_NUM, std::format("{}{}", VIDEO_CODE, EXPERIMENTAL_ID), g_ORTHO_CODE);
@@ -105,7 +137,6 @@ static int experiment()
 			car_detector.Run(frame);
 		}
 
-		car_detector.SetDistOutputFlag();
 		GuiHandler::Render();
 
 #ifdef DISPLAY_SPEED
@@ -117,7 +148,7 @@ static int experiment()
 	std::cout << "end....." << std::endl;
 
 	return 0;
-	}
+}
 
 int main()
 {
