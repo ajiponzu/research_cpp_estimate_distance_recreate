@@ -17,8 +17,6 @@ protected:
 	using super = DetectedCar;
 
 	int64_t m_evaluateCount = 0;
-	int64_t m_passedSpanCount = 0;
-	int64_t m_skipSpanCount = 1;
 	int64_t m_experimentalId;
 	double m_dataSpanFrameCount;
 	double m_speedError;

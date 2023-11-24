@@ -118,7 +118,7 @@ bool ExperimentalCar::Tracking(const cv::Mat& frame)
 	const auto ret = super::Tracking(frame);
 
 	const auto tracking_count = GuiHandler::GetFrameCount() - m_startFrameCount;
-	const auto data_exist_frame_count = std::floor(m_dataSpanFrameCount * m_passedSpanCount);
+	const auto data_exist_frame_count = std::floor(m_dataSpanFrameCount * m_evaluateCount);
 
 	m_calculateFlag = false;
 	if (ret && tracking_count == data_exist_frame_count)
@@ -132,7 +132,7 @@ bool ExperimentalCar::Tracking(const cv::Mat& frame)
 		else
 		{
 			delta_time_abs = calc_delta_time_abs(m_gpsDataList[m_evaluateCount - 1], m_gpsDataList[m_evaluateCount]);
-			m_calculateFlag = delta_time_abs <= m_skipSpanCount * 0.201;
+			m_calculateFlag = delta_time_abs <= 0.201;
 		}
 
 		if (m_calculateFlag)
@@ -150,12 +150,7 @@ bool ExperimentalCar::Tracking(const cv::Mat& frame)
 				m_curPointTransed.x, m_curPointTransed.y, m_correctPosition.x, m_correctPosition.y, cv::norm(m_transedError),
 				std::abs(m_speed), m_gpsDataList[m_evaluateCount].velocity, m_speedError);
 			m_evaluateCount++;
-			m_skipSpanCount = 1;
 		}
-		else
-			m_skipSpanCount++;
-
-		m_passedSpanCount++;
 	}
 
 	return ret;
