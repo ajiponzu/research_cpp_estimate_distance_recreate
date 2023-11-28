@@ -84,7 +84,7 @@ public:
 	{
 		m_distOutputFlag = true;
 		m_ofstream.open(std::format("outputs/experiments/experiment_distance{}.csv", m_experimentalId));
-		m_ofstream << "distance,correct_distance,distance_error" << std::endl;
+		m_ofstream << "frame_number,distance,correct_distance,distance_error" << std::endl;
 	}
 
 	virtual void Run(const cv::Mat& img);

@@ -43,7 +43,7 @@ void ExperimentalDetector::Run(const cv::Mat& img)
 	const auto correct_distance = cv::norm(correct_position_list[0] - correct_position_list[1])
 		* ResourceProvider::GetOrthoGeoInf().meter_ratio;
 
-	m_ofstream << std::format("{},{},{}\n", m_carDistMeter, correct_distance, std::abs(m_carDistMeter - correct_distance));
+	m_ofstream << std::format("{},{},{},{}\n", GuiHandler::GetFrameCount(), m_carDistMeter, correct_distance, std::abs(m_carDistMeter - correct_distance));
 }
 
 void ExperimentalDetector::SetDetectedCar(const cv::Rect& rect)
