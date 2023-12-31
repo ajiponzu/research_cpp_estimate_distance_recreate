@@ -46,7 +46,7 @@ void ExperimentalDetector::Run(const cv::Mat& img)
 	m_ofstream << std::format("{},{},{},{}\n", GuiHandler::GetFrameCount(), m_carDistMeter, correct_distance, std::abs(m_carDistMeter - correct_distance));
 }
 
-void ExperimentalDetector::SetDetectedCar(const cv::Rect& rect)
+void ExperimentalDetector::SetDetectedCarExp(const cv::Rect& rect, const double& body_length)
 {
 	if (rect.width < 5 || rect.height < 5)
 		return;
@@ -55,7 +55,7 @@ void ExperimentalDetector::SetDetectedCar(const cv::Rect& rect)
 
 	m_detectedCars[car_id].reset(
 		new ExperimentalCar(m_carNameList[car_id], m_experimentStartTimeList[car_id],
-			m_experimentalId, m_dataSpanFrameCount, rect, m_newCarId));
+			m_experimentalId, m_dataSpanFrameCount, rect, m_newCarId, body_length));
 	m_newCarId++;
 	m_emptyCarId++;
 }

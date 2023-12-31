@@ -9,6 +9,7 @@ protected:
 	uint64_t m_curFrameCount = 0;
 	double m_movingDistance = 0.0;
 	double m_speed = 0.0;
+	double m_bodyLength = 0.0;
 	cv::Rect m_shape;
 	cv::Rect m_detectionArea;
 	cv::Point2f m_orthoBodyDirection;
@@ -27,9 +28,10 @@ protected:
 	void CalcSpeed();
 public:
 	DetectedCar() = default;
-	DetectedCar(const cv::Rect& shape, const int64_t& id)
+	DetectedCar(const cv::Rect& shape, const int64_t& id, const double& body_length = 4.05)
 		: m_shape(shape)
 		, m_id(id)
+		, m_bodyLength(body_length)
 	{
 		Init();
 	}

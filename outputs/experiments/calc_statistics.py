@@ -24,18 +24,18 @@ def handle_speed(ref_dict, ex_num_list, lane_num):
 
     data_dict = dict()
     data_dict['道路番号'] = lane_num
-    data_dict['平均値'] = dataset['transformed_error'].values.mean()
-    data_dict['最大値'] = dataset['transformed_error'].values.max()
-    data_dict['最小値'] = dataset['transformed_error'].values.min()
-    data_dict['標準偏差'] = dataset['transformed_error'].values.std()
+    data_dict['平均値'] = round(dataset['transformed_error'].values.mean(), 2)
+    data_dict['最大値'] = round(dataset['transformed_error'].values.max(), 2)
+    data_dict['最小値'] = round(dataset['transformed_error'].values.min(), 2)
+    data_dict['標準偏差'] = round(dataset['transformed_error'].values.std(), 2)
     ref_dict['変換誤差'].append(data_dict.copy())
 
     data_dict = dict()
     data_dict['道路番号'] = lane_num
-    data_dict['平均値'] = dataset['speed_error'].values.mean()
-    data_dict['最大値'] = dataset['speed_error'].values.max()
-    data_dict['最小値'] = dataset['speed_error'].values.min()
-    data_dict['標準偏差'] = dataset['speed_error'].values.std()
+    data_dict['平均値'] = round(dataset['speed_error'].values.mean(), 2)
+    data_dict['最大値'] = round(dataset['speed_error'].values.max(), 2)
+    data_dict['最小値'] = round(dataset['speed_error'].values.min(), 2)
+    data_dict['標準偏差'] = round(dataset['speed_error'].values.std(), 2)
     ref_dict['走行速度誤差'].append(data_dict.copy())
 
 
@@ -52,10 +52,10 @@ def handle_distance(ref_dict, ex_num_list, lane_num):
 
     data_dict = dict()
     data_dict['道路番号'] = lane_num
-    data_dict['平均値'] = dataset['distance_error'].values.mean()
-    data_dict['最大値'] = dataset['distance_error'].values.max()
-    data_dict['最小値'] = dataset['distance_error'].values.min()
-    data_dict['標準偏差'] = dataset['distance_error'].values.std()
+    data_dict['平均値'] = round(dataset['distance_error'].values.mean(), 2)
+    data_dict['最大値'] = round(dataset['distance_error'].values.max(), 2)
+    data_dict['最小値'] = round(dataset['distance_error'].values.min(), 2)
+    data_dict['標準偏差'] = round(dataset['distance_error'].values.std(), 2)
     ref_dict['車間距離誤差'].append(data_dict.copy())
 
 

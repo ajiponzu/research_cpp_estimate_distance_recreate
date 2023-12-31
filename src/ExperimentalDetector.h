@@ -36,12 +36,12 @@ protected:
 public:
 	ExperimentalCar(const std::string& car_name, const std::string& experiment_start_time,
 		const int64_t& experimental_id, const double& data_span_frame_count,
-		const cv::Rect& shape, const int64_t& id)
-		: DetectedCar(shape, id),
-		m_carName(car_name),
-		m_experimentStartTime(experiment_start_time),
-		m_experimentalId(experimental_id),
-		m_dataSpanFrameCount(data_span_frame_count)
+		const cv::Rect& shape, const int64_t& id, const double& body_length)
+		: DetectedCar(shape, id, body_length)
+		, m_carName(car_name)
+		, m_experimentStartTime(experiment_start_time)
+		, m_experimentalId(experimental_id)
+		, m_dataSpanFrameCount(data_span_frame_count)
 	{
 		Init();
 	}
@@ -88,7 +88,7 @@ public:
 	}
 
 	virtual void Run(const cv::Mat& img);
-	virtual void SetDetectedCar(const cv::Rect& rect);
+	virtual void SetDetectedCarExp(const cv::Rect& rect, const double& body_length);
 
 	bool operator==(const ExperimentalDetector& other) const = delete;
 };

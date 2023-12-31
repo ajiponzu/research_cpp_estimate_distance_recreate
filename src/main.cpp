@@ -127,8 +127,8 @@ static int experiment()
 #endif
 		if (experimental_start_data.start_frame_count == GuiHandler::GetFrameCount())
 		{
-			car_detector.SetDetectedCar(experimental_start_data.car_pos_hash["jimny"]);
-			car_detector.SetDetectedCar(experimental_start_data.car_pos_hash["levorg"]);
+			car_detector.SetDetectedCarExp(experimental_start_data.car_pos_hash["jimny"], 3.5);
+			car_detector.SetDetectedCarExp(experimental_start_data.car_pos_hash["levorg"], 4.755);
 		}
 
 		if (GuiHandler::IsRunning())
