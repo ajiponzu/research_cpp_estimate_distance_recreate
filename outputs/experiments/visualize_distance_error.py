@@ -22,7 +22,7 @@ def put_plot():
 
         plt.clf()
         plt.xlabel('time[s]')
-        plt.ylabel('speed[km/h]')
+        plt.ylabel('distance[m]')
         plt.ylim(0, 50)
         plt.yticks(np.arange(0, 50, 5))
 

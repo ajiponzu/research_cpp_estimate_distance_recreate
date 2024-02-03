@@ -109,15 +109,12 @@ bool DetectedCar::Matching()
 
 void DetectedCar::UpdatePosition(const cv::Point& car_pos)
 {
-	//static constexpr auto CAR_BODY_ESTIMATED_METER = 4.05;
-
 	m_prevPointTransed = m_curPointTransed;
 	m_curPointTransed = get_transed_point(car_pos);
 
 	// (白線方向 / [m / pix]) * 車体の全長[m] = 車体の他面位置[pix^2]
 	m_orthoBodyDirection = get_white_lane_dir_ortho(car_pos);
 
-	//const auto car_body_direction_pixel = CAR_BODY_ESTIMATED_METER * m_orthoBodyDirection / ResourceProvider::GetOrthoGeoInf().meter_ratio;
 	const auto car_body_direction_pixel = m_bodyLength * m_orthoBodyDirection / ResourceProvider::GetOrthoGeoInf().meter_ratio;
 	const auto another_point = static_cast<cv::Point>(extract_xy_point(m_curPointTransed) - car_body_direction_pixel);
 	m_curPointTransedAnother = convert_xy_into_xyz(another_point, get_dsm_z(another_point));
